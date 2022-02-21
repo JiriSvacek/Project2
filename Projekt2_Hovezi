@@ -1,0 +1,98 @@
+import random
+import time
+from Projekt2_Hovezi_zaznamy import zaznamy
+
+# Deklarace proměných
+uhodnuti = 0
+oddelovac = "-" * 30
+cislo_pc = list()
+prihlasen = True
+hovezi = {"bull" : 0, "cow" : 0}
+t_zacatek = 0.0
+t_konec = 0.0
+t_rozdil = 0.0
+
+# Vytvoření tajného čísla počítače
+for pozice in range(4):
+    while True:
+        if len(cislo_pc) == 0:
+            cislo_pc.append(random.randint(1, 9))
+            break
+        else:
+            cislo = random.randint(0, 9)
+            if cislo not in cislo_pc:
+                cislo_pc.append(cislo)
+                break
+
+# Pozdravení uživatele
+print("Hi there!")
+print(oddelovac)
+print("I've generated a random 4 digit number for you.")
+print("Let's play a bulls and cows game.")
+print(oddelovac)
+
+# Vypsání historie
+if len(zaznamy) != 0:
+    print("Game history (max. 3):")
+    for i, j in zaznamy:
+        print(f"It took: {j} seconds and {i} gueses")
+
+# Hádání čísla
+while True:
+
+    hovezi["bull"] = 0
+    hovezi["cow"] = 0
+    prihlasen = True
+    uhodnuti += 1
+    cislo_cl = input("Enter a number: ")
+    if uhodnuti == 1:
+        t_zacatek = time.time()
+
+# Kontrola čísla zadané uživatelem
+    if not 3 < len(cislo_cl) < 5 or not cislo_cl.isnumeric():
+        print("Wrong number")
+        print(oddelovac)
+        continue
+
+    for pozice in range(4):
+        if str(cislo_cl)[pozice] in str(cislo_cl)[pozice + 1:]:
+            prihlasen = False
+            break
+
+    if not prihlasen:
+        print("Wrong number")
+        continue
+
+# Hledání krav a býku v číslech
+    for pozice in range(4):
+        if str(cislo_cl)[pozice] == str(cislo_pc[pozice]):
+            hovezi["bull"] = hovezi.get("bull") + 1
+        elif str(cislo_cl).count(str(cislo_pc[pozice])):
+            hovezi["cow"] = hovezi.get("cow") + 1
+    if uhodnuti > 1:
+        guess = "gueses"
+    else:
+        guess = "guess"
+
+# Vyhodnocení
+    if hovezi.get("bull") == 4:
+        t_konec = time.time()
+        t_rozdil = t_konec - t_zacatek
+        print("Correct, you've guessed the right number")
+        print(f"It took {uhodnuti} {guess} \nand {round(t_rozdil, 2)} seconds.")
+        zaznamy.insert(0, [uhodnuti, round(t_rozdil, 2)])
+        if len(zaznamy) > 3:
+            zaznamy.pop(3)
+        with open("Projekt2_Hovezi_zaznamy.py", 'w') as f:
+            print("zaznamy =", zaznamy, file=f)
+        break
+    else:
+        if hovezi.get("bull") == 1 and hovezi.get("cow") == 1:
+            print(hovezi.get("bull"), " bull", " / ", hovezi.get("cow"), " cow")
+        elif hovezi.get("bull") == 1 and hovezi.get("cow") != 1:
+            print(hovezi.get("bull"), " bull", " / ", hovezi.get("cow"), " cows")
+        elif hovezi.get("bull") != 1 and hovezi.get("cow") == 1:
+            print(hovezi.get("bull"), " bulls", " / ", hovezi.get("cow"), " cow")
+        else:
+            print(hovezi.get("bull"), " bulls", " / ", hovezi.get("cow"), " cows")
+    print(oddelovac)
